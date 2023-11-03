@@ -1,14 +1,70 @@
 ---
 title: "Gov 50 Final Project"
-author: "Your Name Here"
+author: "Lenny Pische"
 description: "My final project"
 output:
   distill::distill_article:
     self_contained: false
 ---
 
-
+```{r}
+library(tidyverse)
+library(broom)
+library(knitr)
+```
 
 ## Project thoughts
 
-I am interested in exploring data related to...
+
+My project idea is to explore data related to differences in the 2019 EU parliament election in Italy.
+Specifically, I will explore  how education levels and age correlate to voting trends, and gather conclusions from the data.
+
+
+## Project data source and proposal
+Every election year, the European parliament conducts a country-wide post-election survey on a nationally representative sample of citizens of each member of the European Union. There are approximately 80 questions each respondent has to answer and all the interviews are conducted personally. The dataset I chose reports data for Italy.
+
+My research will analyze whether age and education levels affect voting choice. Then, it will analyze whether respondents that voted in the EU election also voted in the most recent national election, and if voting in the EU election affects voting choice in the national election. 
+I hyphotesize that lower age, higher levels of education and voting in the European election tend to steer a respondent's view to the left. The explanatory variable of interests are three: the age of the respondent, divided in batches (15-24, 25-39, 40-54, and 55+); the age at which the respondent stopped full-time education (15-, 16-19, 20+); and the whether they voted in the EU election ("Voted", "Did not Vote"). For their age and their education levels, the outcome variable of interest is where, on a scale from 1 to 10, the respondents position themselves politically, with 1 being the indicator for the far left and 10 being the far right.
+
+For whether they voted in the EU election, the outcome variables are two: whether they voted in the national election ("Voted", "Did not Vote") and who they declared they voted for (Movimento 5 Stelle (M5S), Partito Democratico (PD), Lega, Forza Italia (FI), Fratelli d'Italia (FdI), Liberi ed Uguali (LeU  - MDP + SI + P), +Europa-Centro Democratico (+E), Noi con l'Italia-UDC, Potere al Popolo (PaP), Italia Europa Insieme (Verdi + PSI + altri), Civica Popolare (AP + IDV + altri), Südtiroler Volkspartei (SVP), CasaPound Italia (CPI), Partito Comunista (PC), Other (SPONTANEOUS), Voted blank (SPONTANEOUS), Refusal (SPONTANEOUS)).
+
+If I observe lower values of the left-right voting choice indicator in the dataset for younger ages (18-25) and higher levels of education (20+), this will provide support for my first hypothesis. If I observe higher values of the left-right voting choice indicator in the dataset for younger ages (18-25) and higher levels of education (20+), this will counter my first hypothesis. 
+
+If I observe higher "Voted" values (in the national election vote) for people that voted in the EU election, this will support my second hypothesis. Otherwise, this will not support my hypothesis.
+
+If I observe higher percentages for parties that politically align themselves  on the left for people that voted in the EU election, this will support my third hypothesis. Otherwise, it will not. 
+
+#implementation
+
+
+```{r}
+
+age_to_Left_right <- read.csv("index_files/age - LR index.csv")
+education_to_left_right <- read.csv("index_files/edu to LR.csv")
+
+EU_to_national_vote <- read.csv("index_files/EU to National Elections.csv")
+EU_to_national_preference <- read.csv("index_files/eb_91.5_post-elect_volume C_IT copy.csv")
+
+EU_to_national_vote
+summary <- EU_to_national_vote |>
+  group_by(EU) |>
+  summarize(Voted_in_National = sum(Voted.in.National.Election),
+            Did_not_vote_in_National = sum(Did.not.vote.in.National.Election))
+summary
+histogram <- summary |>
+  pivot_longer(cols = c(Voted_in_National, Did_not_vote_in_National)) |>
+  ggplot(aes(x = EU, y = value, fill = name)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "EU Election Participation",
+    y = "National Election participation",
+    fill = "National Election Outcome"
+  ) +
+  scale_fill_manual(values = c("Voted_in_National" = "steelblue1", "Did_not_vote_in_National" = "indianred3"),
+                    labels = c(Voted_in_National = "Voted in National Election", Did_not_vote_in_National = "Did not vote in National Election"))
+
+histogram
+
+
+```
+
